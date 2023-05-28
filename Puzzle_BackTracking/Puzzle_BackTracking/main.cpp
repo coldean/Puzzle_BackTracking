@@ -19,8 +19,8 @@ using namespace std;
 
 void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece);
 bool isPromissing(int order, int chosenPiece, vector<int> piece);
-bool checkNumbers(int order, int chosenPiece, vector<int> piece, int tempNum);
 bool isPair(int n1, int n2);
+void saveResult(vector<int> newPiece, int chosenPiece, int rotate);
 
 vector<vector<int>> resultPuzzle;
 vector<string> resultString;
@@ -47,17 +47,15 @@ int main(int argc, const char * argv[]) {
         
         remain_pieces[i] = true;
     }
-    for (int i=0; i<9; i++){
-        remain_pieces[i] = false;
+    for (int i=0; i<9; i++){            // 첫번째 칸 9조각 다 확인
+        remain_pieces[i] = false;       // remain_pieces 초기화
         vector<int> newPiece;
         
-        for ( int j=0; j<4; j++){
+        for ( int j=0; j<4; j++){       // piece 방향 돌려가면서 다 확인해봄
             for (int k=0; k<4; k++){
                 newPiece.push_back(puzzle[i][(j + k) % 4]);
             }
-            resultPuzzle.push_back(newPiece);
-            string r = to_string(i + 1) + "(" + to_string(j) + ")";
-            resultString.push_back(r);
+            saveResult(newPiece, i + 1, j);
             
             for (int l=0; l<9; l++){
                 if (remain_pieces[l] == true)
@@ -76,47 +74,13 @@ int main(int argc, const char * argv[]) {
 }
 
 void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece){
-   
-//    if (order == 10){
-//        for (int i=0; i<9; i++){
-//            cout << resultString[i] << " ";
-//        }
-//        cout << endl;
-//        resultCount ++;
-////        resultPuzzle.clear();
-////        resultString.clear();
-//        return;
-//    }
-//    if (order == 9){
-//        //
-//    }
     vector<int> piece = puzzle[chosenPiece - 1];
-    
-//    if(order > 10 || !isPromissing(order, chosenPiece, piece)){
-//        return;
-//    }
-//
-//    if (resultPuzzle.size() == 9){  //다 찾음
-//        for (int i=0; i<9; i++){
-//            cout << resultString[i] << " ";
-//        }
-//        cout << endl;
-//        resultCount += 1;
-//    }
-//
-//    for(int i=0; i<9; i++){
-//        if(remain_pieces[i]){
-//            solvePuzzle(puzzle, order + 1, i);
-//        }
-//    }
-//    remain_pieces[chosenPiece] = true;
-//    resultPuzzle.pop_back();
-//    resultString.pop_back();
     
     if(!isPromissing(order, chosenPiece, piece)){
         return;
     }
     
+    // 마지막 퍼즐까지 확인해서 다 채웠을 때
     if (order == 9){
         int count = 0;
         for (int i=0; i<9; i++){
@@ -129,9 +93,9 @@ void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece){
                 cout << resultString[i] << " ";
             }
             cout << endl;
-            resultCount ++;
+            resultCount ++;                     // 총 갯수 추가
             
-            resultPuzzle.pop_back();
+            resultPuzzle.pop_back();            // 다시 위로 돌아가기 위해 뺴줌
             resultString.pop_back();
             remain_pieces[chosenPiece - 1] = true;
             
@@ -141,10 +105,10 @@ void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece){
     
     for(int i=0; i<9; i++){
         if(remain_pieces[i]){
-            solvePuzzle(puzzle, order + 1, i + 1);
+            solvePuzzle(puzzle, order + 1, i + 1);  // 남아있는 퍼즐 하나씩 확인
         }
     }
-    resultPuzzle.pop_back();
+    resultPuzzle.pop_back();                    // 다시 위로 돌아가기 위해 빼줌
     resultString.pop_back();
     remain_pieces[chosenPiece - 1] = true;
 }
@@ -154,34 +118,17 @@ void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece){
 bool isPromissing(int order, int chosenPiece, vector<int> piece){
     bool check = false;
     
-//    if (order % 3 == 1){    // 좌측 라인일 때, order -3, (+1, +3) 체크  // +는 아직 안나왔으므로 체크 안해도 됨
-//        int tempNum = order - 3;
-//        check = checkNumbers(order, chosenPiece, piece, tempNum);
-//    }
-//    else if (order % 3 == 2){   // 중간 라인일 때, order -3, -1, (+1, +3) 체크
-//        int tempNum = order - 3;
-//        check = checkNumbers(order, chosenPiece, piece, tempNum);
-//        tempNum = order - 1;
-//        check = checkNumbers(order, chosenPiece, piece, tempNum);
-//    }
-//    else{   // 우측 라인일 때, order -3, -1, (+3) 체크
-//        int tempNum = order - 3;
-//        check = checkNumbers(order, chosenPiece, piece, tempNum);
-//        tempNum = order - 1;
-//        check = checkNumbers(order, chosenPiece, piece, tempNum);
-//    }
-    
     vector<int> prePiece_up, prePiece_left;
     int prePiece_up_number = -1;
     int prePiece_left_number = -1;
     
-    if (order % 3 == 1){    // 좌측 라인일 때, 1번 인덱스(우측) 점검
+    if (order % 3 == 1){    // 좌측 라인일 때, 인덱스[1](우측) 점검
         prePiece_up_number = order - 3;
         if (prePiece_up_number < 0)
             return true;
         prePiece_up = resultPuzzle[prePiece_up_number - 1];
     }
-    else{   // 우측 라인일 때, 1번 인덱스(우측), 2번 인덱스(하단) 점검
+    else{   // 중앙, 우측 라인일 때, 인덱스[1](우측), 인덱스[2](하단) 점검
         prePiece_up_number = order - 3;
         prePiece_left_number = order - 1;
         
@@ -190,11 +137,11 @@ bool isPromissing(int order, int chosenPiece, vector<int> piece){
         prePiece_left = resultPuzzle[prePiece_left_number - 1];
     }
     
-    if (prePiece_up_number > 0 && (order % 3 == 1)){
+    if (prePiece_up_number > 0 && (order % 3 == 1)){    // 좌측 라인일 때 (order 1번 제외)
         bool pair = false;
         int rotate = -1;
         
-        for (int i=0; i<4; i++){
+        for (int i=0; i<4; i++){                        // 위쪽 확인
             pair = isPair(prePiece_up[2], piece[i]);
             if (pair){
                 rotate = i;
@@ -204,11 +151,9 @@ bool isPromissing(int order, int chosenPiece, vector<int> piece){
         if (pair){
             vector<int> newPiece;
             for (int i=0; i<4; i++){
-                newPiece.push_back(piece[(i + rotate) % 4]);
+                newPiece.push_back(piece[(i + rotate) % 4]);       // rotate 만큼 조각 돌려줌
             }
-            resultPuzzle.push_back(newPiece);
-            string r = to_string(chosenPiece) + "(" + to_string(rotate % 4) + ")";
-            resultString.push_back(r);
+            saveResult(newPiece, chosenPiece, rotate % 4);
             remain_pieces[chosenPiece - 1] = false;
             return true;
         }
@@ -218,12 +163,12 @@ bool isPromissing(int order, int chosenPiece, vector<int> piece){
     ///
     /// 위, 좌 확인
     ///
-    if ((order % 3 == 2) || (order % 3 == 0)){
+    if ((order % 3 == 2) || (order % 3 == 0)){      // 중앙과 우측 라인일 때
         bool pair = false;
         int rotate = -1;
         
         // 좌측 퍼즐
-        for (int i=0; i<4; i++){
+        for (int i=0; i<4; i++){                    // 좌측 확인
             pair = isPair(prePiece_left[1], piece[i]);
             if (pair){
                 rotate = i + 1;
@@ -233,24 +178,20 @@ bool isPromissing(int order, int chosenPiece, vector<int> piece){
         if (pair){
             vector<int> newPiece;
             for (int i=0; i<4; i++){
-                newPiece.push_back(piece[(i + rotate) % 4]);
+                newPiece.push_back(piece[(i + rotate) % 4]);    // rotate 만큼 조각 돌려줌
             }
-            if (prePiece_up_number > 0){    // 위에가 존재할 때
+            if (prePiece_up_number > 0){    // 위에가 존재할 때, 위쪽도 확인
                 pair = isPair(prePiece_up[2], newPiece[0]);
                 if (pair){
-                    resultPuzzle.push_back(newPiece);
-                    string r = to_string(chosenPiece) + "(" + to_string(rotate % 4) + ")";
-                    resultString.push_back(r);
+                    saveResult(newPiece, chosenPiece, rotate % 4);
                     remain_pieces[chosenPiece - 1] = false;
                     return true;
                 }
                 else
                     return false;
             }
-            else{
-                resultPuzzle.push_back(newPiece);
-                string r = to_string(chosenPiece) + "(" + to_string(rotate % 4) + ")";
-                resultString.push_back(r);
+            else{                           // 위에가 존재 안하면, 좌측만 확인 후 추가
+                saveResult(newPiece, chosenPiece, rotate % 4);
                 remain_pieces[chosenPiece - 1] = false;
                 return true;
             }
@@ -258,38 +199,9 @@ bool isPromissing(int order, int chosenPiece, vector<int> piece){
         else
             return false;
     }
-    
-      
-    
+
     return check;
 }
-
-//bool checkNumbers(int order, int chosenPiece, vector<int> piece, int tempNum){
-//    bool check = false;             // 아래일때는 index 0에 오게, 우측일때는 index 1에 오게 해야함
-//    int indexNum = tempNum - 1;
-//    if (indexNum >= 0){
-//        int numberBefore;  // 이전 퍼즐의 맞물리는 수
-//        if (tempNum + 3 == order)   // 밑이랑 맞을때
-//            numberBefore = resultPuzzle[indexNum][2];
-//        else                        // 우측이랑 맞을 때
-//            numberBefore = resultPuzzle[indexNum][1];
-//        vector<int> newPiece;
-//
-//        for (int i = 0; i<4; i++){
-//            if(isPair(numberBefore, piece[i])){
-//                for (int j = 0; j<4; j++){
-//                    newPiece.push_back(piece[(j + 4 - i) % 4]); // 순서 바꾸기
-//                }
-//                resultPuzzle.push_back(newPiece);               // 순서 바꾼 퍼즐 저장
-//                string r = to_string(chosenPiece) + "(" + to_string(i) + ")";
-//                resultString.push_back(r);
-//                remain_pieces[chosenPiece] = false; // 퍼즐 사용했다고 표시
-//                check = true;
-//            }
-//        }
-//    }
-//    return check;
-//}
 
 bool isPair(int n1, int n2){
     bool check = false;
@@ -304,4 +216,10 @@ bool isPair(int n1, int n2){
         check = true;
     
     return check;
+}
+
+void saveResult(vector<int> newPiece, int chosenPiece, int rotate){
+    resultPuzzle.push_back(newPiece);
+    string r = to_string(chosenPiece) + "(" + to_string(rotate) + ")";
+    resultString.push_back(r);
 }
