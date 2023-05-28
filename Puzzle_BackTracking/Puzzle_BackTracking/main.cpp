@@ -23,7 +23,7 @@
 using namespace std;
 
 void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece);
-bool isPromissing(int order, int chosenPiece, vector<int> piece);
+bool isPromising(int order, int chosenPiece, vector<int> piece);
 bool isPair(int n1, int n2);
 void saveResult(vector<int> newPiece, int chosenPiece, int rotate);
 
@@ -81,7 +81,7 @@ int main(int argc, const char * argv[]) {
 void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece){
     vector<int> piece = puzzle[chosenPiece - 1];
     
-    if(!isPromissing(order, chosenPiece, piece)){
+    if(!isPromising(order, chosenPiece, piece)){
         return;
     }
     
@@ -120,7 +120,7 @@ void solvePuzzle(vector<vector<int>> &puzzle, int order, int chosenPiece){
 
 // 각 사면이 맞닿아있는지 확인
 // 여기서 퍼즐을 4방향으로 돌려서 확인
-bool isPromissing(int order, int chosenPiece, vector<int> piece){
+bool isPromising(int order, int chosenPiece, vector<int> piece){
     bool check = false;
     
     vector<int> prePiece_up, prePiece_left;
@@ -165,6 +165,7 @@ bool isPromissing(int order, int chosenPiece, vector<int> piece){
         else
             return false;
     }
+    
     ///
     /// 위, 좌 확인
     ///
